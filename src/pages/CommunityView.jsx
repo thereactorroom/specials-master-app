@@ -12,8 +12,8 @@ import { useIsAdmin } from "@/lib/fusionAdminStore";
 import { useBranding } from "@/lib/brandingContext";
 
 const filters = [
-  { key: "all", label: "All", icon: LayoutGrid },
   { key: "food_drink", label: "Food & Drink", icon: Utensils },
+  { key: "all", label: "All", icon: LayoutGrid },
   { key: "services", label: "Services", icon: Scissors },
   { key: "retail", label: "Retail", icon: ShoppingBag },
   { key: "health_fitness", label: "Health & Fitness", icon: Heart },
