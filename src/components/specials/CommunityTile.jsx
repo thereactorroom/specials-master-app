@@ -2,7 +2,10 @@ import { format } from "date-fns";
 import { Calendar, Clock, Tag, Gift, Eye, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getParamCaseInsensitive } from "@/lib/urlParams";
+import { saveCommunityScroll } from "@/lib/communityScroll";
 import { useIsAdmin } from "@/lib/fusionAdminStore";
+import ContactButton from "./ContactButton";
+import ShareButton from "./ShareButton";
 
 const offerTypeConfig = {
   discount: { label: "Discount", icon: Tag },
@@ -11,7 +14,7 @@ const offerTypeConfig = {
   event: { label: "Event", icon: Calendar },
 };
 
-export default function CommunityTile({ special }) {
+export default function CommunityTile({ special, business }) {
   const navigate = useNavigate();
   const initial = (special.business_name || "?").charAt(0).toUpperCase();
   const offerType = special.offer_type ? offerTypeConfig[special.offer_type] : null;
@@ -32,8 +35,12 @@ export default function CommunityTile({ special }) {
   };
 
   const handleOpen = () => {
+    saveCommunityScroll();
     sessionStorage.setItem("preview-special", JSON.stringify(special));
     sessionStorage.removeItem("app_create_mode");
+    // Mark community origin explicitly: same-origin iframes in one tab share
+    // sessionStorage, so Home's session fallback can be polluted by a
+    // business-owner container running alongside this one.
     const baseQuery = buildQuery();
     navigate(`/specials/view/${special.id}${baseQuery ? baseQuery + "&" : "?"}create=false`);
   };
@@ -105,7 +112,15 @@ export default function CommunityTile({ special }) {
               One Day Only
             </span>
           )}
+          <ShareButton specialId={special.id} stopPropagation className="ml-auto" />
         </div>
+
+        {/* Contact chooser — hidden when the business has no contact details */}
+        <ContactButton
+          business={business}
+          stopPropagation
+          className="w-full h-10 text-xs font-semibold border-teal-200 text-teal-700 hover:bg-teal-50"
+        />
       </div>
     </div>
   );

@@ -8,6 +8,9 @@ import { format } from "date-fns";
 import { getParamCaseInsensitive } from "@/lib/urlParams";
 import { useIsAdmin } from "@/lib/fusionAdminStore";
 import { getFusionMemberName } from "@/lib/fusionBridge";
+import { useBusinessContacts } from "@/hooks/useBusinessContacts";
+import ContactButton from "@/components/specials/ContactButton";
+import ShareButton from "@/components/specials/ShareButton";
 
 const offerTypeConfig = {
   discount: { label: "Discount", icon: Tag },
@@ -24,6 +27,9 @@ export default function SpecialView() {
   const [viewRecorded, setViewRecorded] = useState(false);
   const recordedViewsRef = useRef(null);
   const isAdmin = useIsAdmin();
+
+  // Contact details for this special's business (resolved once per business).
+  const contactsByBusinessId = useBusinessContacts([special?.business_id]);
 
   const buildQuery = () => {
     const params = [];
@@ -153,8 +159,8 @@ export default function SpecialView() {
               <MapPin className="w-5 h-5 text-teal-700" />
             )}
           </div>
-          <div>
-            <p className="text-sm font-bold text-slate-900">{special.business_name}</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-slate-900 truncate">{special.business_name}</p>
             <div
               onClick={isAdmin && viewRecorded ? handleViewLog : undefined}
               className={`flex items-center gap-1 mt-1 text-xs text-slate-400 ${isAdmin && viewRecorded ? "cursor-pointer hover:text-teal-700 transition-colors" : ""}`}
@@ -174,6 +180,7 @@ export default function SpecialView() {
               )}
             </div>
           </div>
+          <ShareButton specialId={special.id} labeled className="shrink-0" />
         </div>
 
         {/* Title */}
@@ -214,10 +221,14 @@ export default function SpecialView() {
 
       {/* Bottom Action */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 p-4 z-20">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto flex gap-3">
+          <ContactButton
+            business={contactsByBusinessId[special.business_id]}
+            className="flex-1 h-12 rounded-2xl font-semibold text-base border-teal-200 text-teal-700 hover:bg-teal-50"
+          />
           <Button
             onClick={() => { navigate(`/${buildQuery()}`); }}
-            className="w-full h-12 rounded-2xl font-semibold text-base"
+            className="flex-1 h-12 rounded-2xl font-semibold text-base"
             style={{ backgroundColor: "#007AFF" }}
           >
             Close

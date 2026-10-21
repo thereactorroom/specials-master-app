@@ -173,6 +173,7 @@ export default function Dashboard({ viewOnly }) {
                     >
                       <SpecialCard
                         special={special}
+                        business={business}
                         onEdit={handleEdit}
                         onPause={handlePause}
                         onResume={handleResume}

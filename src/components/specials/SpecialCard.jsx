@@ -3,33 +3,39 @@ import { Pause, Play, X, Pencil, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import StatusBadge from "./StatusBadge";
+import ContactButton from "./ContactButton";
+import ShareButton from "./ShareButton";
 
-export default function SpecialCard({ special, onEdit, onPause, onResume, onCancel, viewOnly }) {
+export default function SpecialCard({ special, business, onEdit, onPause, onResume, onCancel, viewOnly }) {
   const navigate = useNavigate();
   const isActive = special.status === "active";
   const isPaused = special.status === "paused";
 
   const handlePreview = () => {
     sessionStorage.setItem("preview-special", JSON.stringify(special));
+    // Carry the originating dashboard mode explicitly — same-origin iframes
+    // share sessionStorage, so Home's fallback can be polluted by another container.
     navigate(`/specials/preview?id=${special.id}&view=true${viewOnly ? "&viewonly=true&View=true" : "&create=true"}`);
   };
 
   return (
     <div className="bg-card rounded-2xl p-4 shadow-sm border border-border/50 space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground truncate">{special.title}</h3>
-          <div className="flex items-center gap-2 mt-0.5 flex-nowrap whitespace-nowrap">
-            <p className="text-xs text-muted-foreground whitespace-nowrap">
-              Expires {special.end_date ? format(new Date(special.end_date), "MMM d, yyyy") : "—"}
-            </p>
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-              <Eye className="w-3 h-3 shrink-0" />
-              Unique Views ({special.unique_views || 0})
-            </span>
-          </div>
+      <div className="space-y-2">
+        <h3 className="font-semibold text-foreground leading-snug break-words">{special.title}</h3>
+        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <p>
+            Expires {special.end_date ? format(new Date(special.end_date), "MMM d, yyyy") : "—"}
+          </p>
+          <span className="inline-flex items-center gap-1">
+            <Eye className="w-3 h-3 shrink-0" />
+            Unique Views ({special.unique_views || 0})
+          </span>
         </div>
-        <StatusBadge status={special.status} />
+        <div className="flex items-center gap-2 flex-wrap">
+          <ContactButton business={business} className="h-8 rounded-full text-xs font-medium" />
+          <StatusBadge status={special.status} />
+          <ShareButton specialId={special.id} />
+        </div>
       </div>
 
       {special.image_url && (

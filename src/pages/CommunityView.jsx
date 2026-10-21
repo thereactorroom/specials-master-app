@@ -10,6 +10,8 @@ import PullToRefresh from "@/components/PullToRefresh";
 import { getParamCaseInsensitive } from "@/lib/urlParams";
 import { useIsAdmin } from "@/lib/fusionAdminStore";
 import { useBranding } from "@/lib/brandingContext";
+import { useBusinessContacts } from "@/hooks/useBusinessContacts";
+import { getCommunityScroll, clearCommunityScroll } from "@/lib/communityScroll";
 
 const filters = [
   { key: "all", label: "All", icon: LayoutGrid },
@@ -50,6 +52,9 @@ export default function CommunityView() {
     initialData: [],
   });
 
+  // Contact details for the businesses behind the listed specials (one request).
+  const contactsByBusinessId = useBusinessContacts(specials.map((s) => s.business_id));
+
   const isRefreshing = isFetching && !isLoading;
 
   const filtered = specials.filter((s) => {
@@ -57,6 +62,22 @@ export default function CommunityView() {
     if (activeFilter === "today_only") return s.today_only === true;
     return s.category === activeFilter;
   });
+
+  // Returning from a special view (Close) → restore the previous scroll
+  // position so the user lands back where they left off, not at the top.
+  const returnedFromView = getParamCaseInsensitive("create") === "false";
+  useEffect(() => {
+    if (!returnedFromView || isLoading) return;
+    const y = getCommunityScroll();
+    clearCommunityScroll();
+    if (!y) return;
+    const restore = () => window.scrollTo(0, y);
+    // Restore after the list renders; retry shortly after in case layout
+    // (e.g. images) settles slightly later.
+    requestAnimationFrame(() => { restore(); requestAnimationFrame(restore); });
+    const t = setTimeout(restore, 200);
+    return () => clearTimeout(t);
+  }, [returnedFromView, isLoading]);
 
   const counts = {
     all: specials.length,
@@ -149,7 +170,7 @@ export default function CommunityView() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
                     >
-                      <CommunityTile special={special} />
+                      <CommunityTile special={special} business={contactsByBusinessId[special.business_id]} />
                     </motion.div>
                   ))}
                 </AnimatePresence>

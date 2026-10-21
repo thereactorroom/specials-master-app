@@ -5,25 +5,32 @@ import { getParamCaseInsensitive } from "@/lib/urlParams";
 export default function Home() {
   const viewParam = getParamCaseInsensitive("View");
   const viewValue = viewParam ? viewParam.toLowerCase() : null;
+  const createParam = getParamCaseInsensitive("create");
+  const createValue = createParam ? createParam.toLowerCase() : null;
 
-  // View=True → read-only dashboard: list business specials, preview only.
+  // URL params are authoritative for this load. When the URL explicitly picks
+  // a mode, clear any stale session state left by a previous context that ran
+  // in the same reused iframe, so it can never leak into this one.
   if (viewValue === "true") {
+    // View=True → read-only dashboard: list business specials, preview only.
     sessionStorage.setItem("app_view_mode", "true");
+    sessionStorage.removeItem("app_create_mode");
     return <Dashboard viewOnly />;
   }
   if (viewValue === "false") {
     sessionStorage.removeItem("app_view_mode");
   }
-
-  const createParam = getParamCaseInsensitive("create");
-
-  const createValue = createParam ? createParam.toLowerCase() : null;
   if (createValue === "true") {
     sessionStorage.setItem("app_create_mode", "true");
+    sessionStorage.removeItem("app_view_mode");
     return <Dashboard />;
   }
   if (createValue === "false") {
+    // Community mode is not business-scoped: drop any business context saved
+    // by a previous business-owner session in the same iframe.
     sessionStorage.removeItem("app_create_mode");
+    sessionStorage.removeItem("app_view_mode");
+    sessionStorage.removeItem("app_business");
     return <CommunityView />;
   }
 
@@ -36,5 +43,6 @@ export default function Home() {
     return <Dashboard />;
   }
 
+  sessionStorage.removeItem("app_business");
   return <CommunityView />;
 }

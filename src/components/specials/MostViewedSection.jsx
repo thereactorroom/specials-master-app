@@ -3,6 +3,7 @@ import { Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { getParamCaseInsensitive } from "@/lib/urlParams";
+import { saveCommunityScroll } from "@/lib/communityScroll";
 
 const PREVIEW_COUNT = 3;
 const MAX_COUNT = 10;
@@ -24,6 +25,7 @@ export default function MostViewedSection({ specials }) {
   const hasMore = sortedByViews.length > PREVIEW_COUNT;
 
   const handleOpen = (special) => {
+    saveCommunityScroll();
     sessionStorage.setItem("preview-special", JSON.stringify(special));
     sessionStorage.removeItem("app_create_mode");
     const params = [];
@@ -34,6 +36,7 @@ export default function MostViewedSection({ specials }) {
     if (businessId) params.push(`BusinessID=${encodeURIComponent(businessId)}`);
     if (business) params.push(`business=${encodeURIComponent(business)}`);
     const query = params.length ? `?${params.join("&")}` : "";
+    // Mark community origin explicitly (same-origin iframes share sessionStorage).
     navigate(`/specials/view/${special.id}${query ? query + "&" : "?"}create=false`);
   };
 
