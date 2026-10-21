@@ -115,12 +115,15 @@ export default async function(req: Request): Promise<Response> {
 
     // ── 4. Find and update the business record ──
     const base44 = createClientFromRequest(req);
-    const { items } = await base44.asServiceRole.entities.Business.filter({ business_id: businessId }, { limit: 1 });
-    if (!items || items.length === 0) {
+    // Version-safe lookup: without an options object the SDK returns a plain
+    // array; with one it returns a page ({ items }). Handle both.
+    const results = await base44.asServiceRole.entities.Business.filter({ business_id: businessId });
+    const matches = Array.isArray(results) ? results : (results?.items || []);
+    if (matches.length === 0) {
       return json({ status: 'error', error: `No business found with business_id ${businessId}` }, 404);
     }
 
-    const updated = await base44.asServiceRole.entities.Business.update(items[0].id, patch);
+    const updated = await base44.asServiceRole.entities.Business.update(matches[0].id, patch);
 
     return json({
       status: 'success',
