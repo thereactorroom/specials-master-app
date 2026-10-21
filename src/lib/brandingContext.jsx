@@ -13,6 +13,7 @@ const FIELDS = [
   "theme_mode",
   "heading_font",
   "body_font",
+  "enable_sharing",
   "configured",
 ];
 

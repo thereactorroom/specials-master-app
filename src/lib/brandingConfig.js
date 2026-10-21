@@ -14,6 +14,7 @@ export const DEFAULT_BRANDING = {
   theme_mode: "light",
   heading_font: "Inter",
   body_font: "Inter",
+  enable_sharing: false,
 };
 
 export const COLOR_PRESETS = [

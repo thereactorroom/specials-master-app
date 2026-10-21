@@ -3,13 +3,19 @@ import { Share2, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useBranding } from "@/lib/brandingContext";
 import { buildSpecialLink, copyToClipboard } from "@/lib/specialLink";
 
 // Copies a direct link to this special so it can be pasted into any message.
 // `labeled` renders the full text version (used on the special's own page);
 // otherwise it is a compact icon button for the cards.
 export default function ShareButton({ specialId, labeled = false, stopPropagation = false, className }) {
+  const { branding } = useBranding();
   const [copied, setCopied] = useState(false);
+
+  // Sharing is tenant-gated: hidden unless the admin enables it in the
+  // Branding Engine.
+  if (!branding?.enable_sharing) return null;
 
   const handleShare = async (e) => {
     // Cards are clickable as a whole — sharing must not open the special too.

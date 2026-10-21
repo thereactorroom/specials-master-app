@@ -1,8 +1,9 @@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown, Type, Palette, CaseSensitive } from "lucide-react";
+import { ChevronDown, Type, Palette, CaseSensitive, Sparkles } from "lucide-react";
 import IdentitySection from "./IdentitySection";
 import PaletteSection from "./PaletteSection";
 import FontsSection from "./FontsSection";
+import FeaturesSection from "./FeaturesSection";
 
 function Section({ icon: Icon, title, children }) {
   return (
@@ -28,6 +29,9 @@ export default function ConfigRail({ draft, onChange }) {
       </Section>
       <Section icon={CaseSensitive} title="Typography">
         <FontsSection draft={draft} onChange={onChange} />
+      </Section>
+      <Section icon={Sparkles} title="Features">
+        <FeaturesSection draft={draft} onChange={onChange} />
       </Section>
     </div>
   );

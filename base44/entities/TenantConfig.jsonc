@@ -46,6 +46,11 @@
       "default": "Inter",
       "description": "Google Font used for body text"
     },
+    "enable_sharing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the share button is shown on specials. Hidden by default."
+    },
     "configured": {
       "type": "boolean",
       "default": false,
@@ -54,11 +59,5 @@
   },
   "required": [
     "app_name"
-  ],
-  "rls": {
-    "create": null,
-    "read": null,
-    "update": null,
-    "delete": null
-  }
+  ]
 }
